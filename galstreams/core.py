@@ -7,7 +7,10 @@ import sys
 import astropy.table
 import astropy.coordinates as ac
 import astropy.units as u
-import gala
+try
+ import gala
+except ImportError:
+    gd = None
 import gala.coordinates as gc
 import gala.dynamics as gd
 from packaging import version
