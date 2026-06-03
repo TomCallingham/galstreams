@@ -7,12 +7,26 @@ import sys
 import astropy.table
 import astropy.coordinates as ac
 import astropy.units as u
-try
- import gala
-except ImportError:
-    gd = None
+import gala
+##Yes, I know this is not particularly pretty, but its legible for me.
+#try:
+# import gala
+# HAS_GALA = True
+#except ImportError:
+#    HAS_GALA = False
+#if not HAS_GALA:
+#    raise ImportError(
+#            "\n"
+#            "galstreams dynamics requires the 'gala' package.\n\n"
+#            "To fix this, install it with:\n\n"
+#            "    pip install galstreams[dyn]\n\n"
+#            "or install directly:\n\n"
+#            "    pip install gala\n\n"
+#            "If you are using conda, prefer:\n\n"
+#            "    conda install -c conda-forge gala\n"
+#    )
 import gala.coordinates as gc
-import gala.dynamics as gd
+#import gala.dynamics as gd
 from packaging import version
 
 
@@ -221,6 +235,21 @@ def get_mask_in_poly_footprint(poly_sc, coo, stream_frame):
 
      return poly.contains_points(_points)
 
+def _get_gala_dynamics():
+    try:
+        import gala.dynamics as gd
+        return gd
+    except Exception as err:
+        raise ImportError(
+            "\n"
+            "galstreams requires a working gala installation.\n\n"
+            "The current gala install is broken (likely GSL / compiled dependency issue).\n\n"
+            "Fix options:\n\n"
+            "  pip install --force-reinstall gala\n"
+            "or (recommended):\n"
+            "  conda install -c conda-forge gala gsl\n"
+        ) from err
+
 def compute_angular_momentum_track(track, return_cartesian = False):
 
    '''  Compute angular momentum for each point in the track.  
@@ -241,6 +270,8 @@ def compute_angular_momentum_track(track, return_cartesian = False):
         L : list object with compoments of angular momentum vector. By default returns spherical components modulus, lat, lon
 
    '''
+
+   gd = _get_gala_dynamics() 
 
    tr = track.cartesian
 
